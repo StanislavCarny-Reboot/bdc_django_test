@@ -8,42 +8,45 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Post
+from .models import Member, CenterAdmin
 
 
 def home(request):
+
     context = {
-        'posts': Post.objects.all()
+        'members': Member.objects.all(),
+        'admins': CenterAdmin.objects.all()
     }
     return render(request, 'blog/home.html', context)
 
 
 class PostListView(ListView):
-    model = Post
+    model = Member
     template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
+    context_object_name = 'members'
     ordering = ['-date_posted']
     paginate_by = 5
 
 
 class UserPostListView(ListView):
-    model = Post
+    model = Member
     template_name = 'blog/user_posts.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
+    context_object_name = 'members'
     paginate_by = 5
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user).order_by('-date_posted')
+        return Member.objects.filter(author=user).order_by('-date_posted')
 
 
 class PostDetailView(DetailView):
-    model = Post
+    model = Member
 
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['title', 'content']
+class PostCreateView(CreateView):
+    model = Member
+    fields = ['first_name', 'last_name', 'email', 'center']
+    template_name = 'blog/post_form.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -51,8 +54,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields = ['title', 'content']
+    model = Member
+    fields = ['first_name', 'last_name', 'image', 'email', 'center']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -66,7 +69,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
+    model = Member
     success_url = '/'
 
     def test_func(self):
