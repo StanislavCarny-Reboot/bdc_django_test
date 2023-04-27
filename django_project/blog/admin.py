@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Member, CenterAdmin, Center
+from .models import Member,Center
 
-admin.site.register(Center)
 admin.site.register(Member)
-admin.site.register(CenterAdmin)
+admin.site.register(Center)

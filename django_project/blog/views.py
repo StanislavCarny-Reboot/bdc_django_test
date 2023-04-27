@@ -8,14 +8,14 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Member, CenterAdmin
+from .models import Member
+from users.models import Profile
 
 
 def home(request):
-
     context = {
         'members': Member.objects.all(),
-        'admins': CenterAdmin.objects.all()
+        'admins':Profile.objects.all()
     }
     return render(request, 'blog/home.html', context)
 
@@ -41,21 +41,23 @@ class UserPostListView(ListView):
 
 class PostDetailView(DetailView):
     model = Member
-
+    template_name = 'blog/post_form.html'
 
 class PostCreateView(CreateView):
     model = Member
-    fields = ['first_name', 'last_name', 'email', 'center']
+    fields = ['title', 'content','center']
     template_name = 'blog/post_form.html'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        #form.instance.author = self.request.user
+        form.instance.author = 'test'
         return super().form_valid(form)
 
-
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+# class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class PostUpdateView(UpdateView):
     model = Member
-    fields = ['first_name', 'last_name', 'image', 'email', 'center']
+    fields = ['title', 'content','center']
+    template_name = 'blog/post_detail.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
